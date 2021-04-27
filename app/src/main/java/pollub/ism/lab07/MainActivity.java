@@ -6,6 +6,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import pollub.ism.lab07.databinding.ActivityMainBinding;
 
@@ -14,11 +15,12 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ArrayAdapter<CharSequence> adapter;
 
-    MagazynBazaDanych bazaDanych;
-    String wybraneWarzywoNazwa = null;
-    Integer wybraneWarzywoIlosc = null;
+    private String wybraneWarzywoNazwa = null;
+    private Integer wybraneWarzywoIlosc = null;
 
     public enum OperacjaMagazynowa {SKLADUJ, WYDAJ};
+
+    private BazaMagazynowa bazaDanych;
 
 
 
@@ -32,19 +34,30 @@ public class MainActivity extends AppCompatActivity {
         adapter = ArrayAdapter.createFromResource(this, R.array.Asortyment, android.R.layout.simple_dropdown_item_1line);
         binding.spinner.setAdapter(adapter);
 
-        bazaDanych = new MagazynBazaDanych(this);;
+        bazaDanych = Room.databaseBuilder(getApplicationContext(), BazaMagazynowa.class, BazaMagazynowa.NAZWA_BAZY)
+                .allowMainThreadQueries().build();
 
+        if(bazaDanych.pozycjaMagazynowaDAO().size() == 0){
+            String[] asortyment = getResources().getStringArray(R.array.Asortyment);
+            for(String nazwa : asortyment){
+                PozycjaMagazynowa pozycjaMagazynowa = new PozycjaMagazynowa();
+                pozycjaMagazynowa.NAME = nazwa; pozycjaMagazynowa.QUANTITY = 0;
+                bazaDanych.pozycjaMagazynowaDAO().insert(pozycjaMagazynowa);
+            }
+        }
         //listener przycisku skladuj
         binding.przyciskSkladuj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 zmienStan(OperacjaMagazynowa.SKLADUJ);
+
             }
         });
         //listener przycisku wydaj
         binding.przyciskWydaj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 zmienStan(OperacjaMagazynowa.WYDAJ);
             }
         });
@@ -53,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 wybraneWarzywoNazwa = adapter.getItem(i).toString(); // <---
+
                 aktualizuj();
             }
 
@@ -61,13 +75,12 @@ public class MainActivity extends AppCompatActivity {
                 //Nie będziemy implementować, ale musi być
             }
         });
+
     }
     private void aktualizuj(){
-        wybraneWarzywoIlosc = bazaDanych.podajIlosc(wybraneWarzywoNazwa);
-        String text = "Stan magazynu dla " + wybraneWarzywoNazwa + " wynosi: " + wybraneWarzywoIlosc;
+        wybraneWarzywoIlosc = bazaDanych.pozycjaMagazynowaDAO().findQuantityByName(wybraneWarzywoNazwa);
         binding.tekstStanMagazynu.setText("Stan magazynu dla " + wybraneWarzywoNazwa + " wynosi: " + wybraneWarzywoIlosc);
     }
-
     private void zmienStan(OperacjaMagazynowa operacja){
 
         Integer zmianaIlosci = null, nowaIlosc = null;
@@ -85,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
             case WYDAJ: nowaIlosc = wybraneWarzywoIlosc - zmianaIlosci; break;
         }
 
-        bazaDanych.zmienStanMagazynu(wybraneWarzywoNazwa, nowaIlosc);
+        bazaDanych.pozycjaMagazynowaDAO().updateQuantityByName(wybraneWarzywoNazwa,nowaIlosc);
 
         aktualizuj();
-
     }
+
 }

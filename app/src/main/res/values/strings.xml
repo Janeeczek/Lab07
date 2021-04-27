@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Lab06</string>
+    <string name="app_name">Lab07</string>
     <string name="przyciskSkladuj_text">Składuj</string>
     <string name="przyciskWydaj_text">Wydaj</string>
     <string name="edycjaIlosc_text">edycjailosc</string>
-    <string name="tekstJednostka_text">tekstjednostka</string>
+    <string name="tekstJednostka_text">jednostka</string>
 </resources>
