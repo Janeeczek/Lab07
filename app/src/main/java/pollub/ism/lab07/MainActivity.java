@@ -1,4 +1,4 @@
-package pollub.ism.lab06;
+package pollub.ism.lab07;
 
 import android.os.Bundle;
 import android.view.View;
@@ -7,7 +7,8 @@ import android.widget.ArrayAdapter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import pollub.ism.lab06.databinding.ActivityMainBinding;
+import pollub.ism.lab07.databinding.ActivityMainBinding;
+
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
